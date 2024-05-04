@@ -27,9 +27,9 @@ def get_dataset(df, batch_size):
 
 def train():
     train_df = prepare_df(args.train_path, usecols=[
-                          'image_path', 'category', 'x1', 'y1', 'x2', 'y2'])
+        'image_path', 'category', 'x1', 'y1', 'x2', 'y2'])
     vali_df = prepare_df(args.vali_path, usecols=[
-                         'image_path', 'category', 'x1', 'y1', 'x2', 'y2'])
+        'image_path', 'category', 'x1', 'y1', 'x2', 'y2'])
 
     train_dataset = get_dataset(train_df, args.batch_size)
     val_dataset = get_dataset(vali_df, args.batch_size)
