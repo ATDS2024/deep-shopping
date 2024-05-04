@@ -5,7 +5,7 @@ import os
 import numpy as np
 from hyper_parameters import get_arguments
 # from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard
 import os
 import datetime
 
@@ -43,13 +43,29 @@ def train():
         "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-    # Early Stopping callback based on validation loss
-    early_stopping_loss = EarlyStopping(
-        monitor='val_loss', min_delta=0.01, patience=3, verbose=1, mode='min')
+    # # Early Stopping callback based on validation loss
+    # early_stopping_loss = EarlyStopping(
+    #     monitor='val_loss', min_delta=0.01, patience=3, verbose=1, mode='min')
 
-    # Early Stopping callback based on validation accuracy
+    early_stopping_loss = EarlyStopping(
+        monitor='val_loss',  # Monitor validation loss
+        min_delta=0.005,         # Adjust minimum change threshold
+        patience=5,              # Increase patience
+        verbose=1, 
+        mode='min'               # Monitor for loss improvement
+    )
+
     early_stopping_acc = EarlyStopping(
-        monitor='val_accuracy', min_delta=0.01, patience=3, verbose=1, mode='max')
+        monitor='val_accuracy',  # Monitor validation accuracy
+        min_delta=0.005,         # Adjust minimum change threshold
+        patience=5,              # Increase patience
+        verbose=1, 
+        mode='max'               # Monitor for accuracy improvement
+    )
+
+    # # Early Stopping callback based on validation accuracy
+    # early_stopping_acc = EarlyStopping(
+    #     monitor='val_accuracy', min_delta=0.01, patience=3, verbose=1, mode='max')
 
     # Include the desired Early Stopping in the callbacks list. Uncomment the one you prefer.
     callbacks_list = [
