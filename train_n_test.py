@@ -5,7 +5,7 @@ import os
 import numpy as np
 from hyper_parameters import get_arguments
 # from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.callbacks import EarlyStopping, TensorBoard
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau, ModelCheckpoint
 import os
 import datetime
 
@@ -49,16 +49,16 @@ def train():
 
     early_stopping_loss = EarlyStopping(
         monitor='val_loss',  # Monitor validation loss
-        min_delta=0.005,         # Adjust minimum change threshold
-        patience=5,              # Increase patience
+        min_delta=0.001,         # Adjust minimum change threshold
+        patience=7,              # Increase patience
         verbose=1, 
         mode='min'               # Monitor for loss improvement
     )
 
     early_stopping_acc = EarlyStopping(
         monitor='val_accuracy',  # Monitor validation accuracy
-        min_delta=0.005,         # Adjust minimum change threshold
-        patience=5,              # Increase patience
+        min_delta=0.001,         # Adjust minimum change threshold
+        patience=7,              # Increase patience
         verbose=1, 
         mode='max'               # Monitor for accuracy improvement
     )
@@ -67,12 +67,26 @@ def train():
     # early_stopping_acc = EarlyStopping(
     #     monitor='val_accuracy', min_delta=0.01, patience=3, verbose=1, mode='max')
 
-    # Include the desired Early Stopping in the callbacks list. Uncomment the one you prefer.
+    reduce_lr = ReduceLROnPlateau(
+        monitor='val_loss', factor=0.1, patience=5, min_lr=0.0001
+    )
+
+    model_checkpoint = ModelCheckpoint(filepath='best_model.keras', monitor='val_loss', save_best_only=True)
+
     callbacks_list = [
         tensorboard_callback,
-        # early_stopping_loss,  # Uncomment to enable early stopping based on loss
-        early_stopping_acc    # Uncomment to enable early stopping based on accuracy
+        early_stopping_loss,
+        early_stopping_acc,
+        reduce_lr,
+        model_checkpoint
     ]
+
+    # # Include the desired Early Stopping in the callbacks list. Uncomment the one you prefer.
+    # callbacks_list = [
+    #     tensorboard_callback,
+    #     # early_stopping_loss,  # Uncomment to enable early stopping based on loss
+    #     early_stopping_acc    # Uncomment to enable early stopping based on accuracy
+    # ]
 
     model.fit(train_dataset, epochs=args.epochs,
               validation_data=val_dataset, verbose=1, callbacks=callbacks_list)
@@ -86,7 +100,7 @@ def train():
     TRAIN_DIR = 'logs_' + args.version + '/'
     if not os.path.exists(TRAIN_DIR):
         os.makedirs(TRAIN_DIR)
-    model.save(os.path.join(TRAIN_DIR, 'final_model.h5'))
+    model.save(os.path.join(TRAIN_DIR, 'final_model.keras'))
 
 
 if __name__ == "__main__":
